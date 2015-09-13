@@ -1,0 +1,5 @@
+*.csv
+split_minutes
+.Rapp.history
+*.txt
+.Rhistory
