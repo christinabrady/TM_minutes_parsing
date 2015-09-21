@@ -58,11 +58,22 @@ names(match_pat) <- unlist(lapply(roster$Name, function(x) x <- strsplit(x, " ")
 
 master_meeting_roles$first_name <- unlist(lapply(master_meeting_roles$member, function(x) x <- strsplit(x, " ")[[1]][1]))
 master_meeting_roles$official_names <- match_pat[master_meeting_roles$first_name]
-## Tim Casey is Timothy
-master_meeting_roles$official_names[master_meeting_roles$member == "Tim Casey"] <- "Timothy J. Casey Sr."
+
 
 ### names that need to be added to the database:
 non_mem <- subset(master_meeting_roles, is.na(official_names))
 
 
+#### export names to csv to try running entity resolution on them in python:
+# write.csv(unique(master_meeting_roles$member), "minutes_members.csv", row.names = FALSE)
+# write.csv(match_pat, "roster_members.csv", row.names = FALSE)
 
+### create a map from 'resolved' list:
+matches <- read.csv("./matches.csv", header = FALSE)
+mem_map <- unlist(lapply(matches$V1, function(x) x <- gsub("(\\'|\\[|\\])", "", x))) 
+names(mem_map) <- matches$V2
+
+master_meeting_roles$official_names <- mem_map[tolower(master_meeting_roles$member)]
+
+
+### to finish the cleaning manually, source("manual_cleaning.R"). This is saved to a different file to protect the identities of our members.

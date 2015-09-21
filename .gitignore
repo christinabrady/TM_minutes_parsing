@@ -1,5 +1,6 @@
 *.csv
 split_minutes
 .Rapp.history
-*.txt
+manual_cleaning.R
 .Rhistory
+name_res

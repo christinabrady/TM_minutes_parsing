@@ -7,65 +7,87 @@ import os
 import csv
 
 
-def get_text(f):
-	filepath = './split_minutes/' + f
-	fh = open(filepath)
 
-		## read in lines
-	lines = fh.readlines()
-	return lines
+all_meeting_roles = []
 
-
-## get the date
-def get_date(lines_output): 
+def get_date(file_lines): 
 	date_pattern = r'\d+/\d+/\d{4}?'
 	date_regex = re.compile(date_pattern)
-	md = []
-	for line in lines_output:
-		md += date_regex.findall(line)
-	return	str(md)
+	meeting_date = []
+	for line in file_lines:
+		meeting_date += date_regex.findall(line)
+	return	meeting_date
 
-## get the roles and names
-def get_role(role, lines_output):
-	mr = []
-	for line in lines_output:
-		if re.search(role, line.lower()):
-			mr.append(line)
-
-	for index, line in enumerate(mr):
-		mr[index] = line.replace('*', '')
-
-	for index, line in enumerate(mr):
-		mr[index] = line.replace(':', ',')
-
-	for index, line in enumerate(mr):
-		mr[index] = line.replace('//n', '')
-	return mr
-
-
-master_list = []
-filenames = os.listdir('./split_minutes')
-def get_all_roles(filename):
-	list_of_roles = ['toastmaster:', 'thought of the day:', 'speaker:', 'evaluator:', 'table topics:', 'table topics master:', 'grammarian:', 'ah counter:', 'timer:', 'vote counter:']
+def get_role(role, fl_lines):
 	meeting_roles = []
-	text_lines = get_text(filename)	
-	meeting_date = get_date(text_lines)
-	for role in list_of_roles:
-		meeting_roles.append(get_role(role, text_lines))
-		# put them together:
-		print(meeting_roles)
-	for row in meeting_roles:
-		row.insert(0, meeting_date)
-	return(meeting_roles)
+	for line in fl_lines:
+		if re.search(role, line.lower()):
+			meeting_roles.append(line)
+	return meeting_roles
 
-for filename in filenames:
-	master_list.append(get_all_roles(filename))
+def clean_roles(roles_output):
+	for index, line in enumerate(roles_output):
+		roles_output[index] = line.replace('*', '')
+
+	for index, line in enumerate(roles_output):
+		roles_output[index] = line.replace(':', ',')
+
+	for index, line in enumerate(roles_output):
+		roles_output[index] = line.replace('//n', '')
+	return roles_output
+
+def get_meeting_roles(fl):
+		## open files
+		
+		fh = open(filepath)
+
+		## read in lines
+		lines = fh.readlines()
+
+		## get the date
+		m_date = get_date(lines)
+
+		## get the roles
+		list_of_roles = ['toastmaster', 'thought of the day', 'general evaluator', 'speaker', 'evaluator', 'table topics', 'table topics master', 'grammarian', 'ah counter', 'timer', 'vote counter']
+		meeting_role_list = []
+		for role in list_of_roles:
+			meeting_role_list.append(get_role(role, lines))
+
+		## clean roles:
+		# clean_roles(meeting_role_list)
+		print(meeting_role_list)
+
+		## add date:
+
+		for index, line in enumerate(meeting_role_list):
+			meeting_role_list[index] = str(line) + "," + str(m_date)
+
+		return meeting_role_list
 
 
-# with open('TMY2014attend.csv', 'w', newline = "\n") as mr:
-# 	a  = csv.writer(mr, delimiter = ",")
-# 	for y in range(len(master_list[0])):
-# 		a.writerows(x[y] for x in master_list)
+for flname in filenames:
+	all_meeting_roles.append(get_meeting_roles(flname))	
 
 
+print(all_meeting_roles)
+	# with open('meeting_roles.csv', 'w', newline = "\n") as mr:
+	# 	a  = csv.writer(mr, delimiter = ",")
+	# 	w.writerows(meeting_roles)
+
+
+
+
+
+# for each file:
+# 	readlines 
+# 	pull date
+# 	pull roles
+# 	add date to roles
+# 	write 1 file: roles:
+
+# for each file:
+# 	pull date:
+# 	pull attendance
+# 	add date to attendance
+# 	write one file: 
 
